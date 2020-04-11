@@ -1,0 +1,200 @@
+<HTML>
+<CANVAS Id="game canvas", WIDTH=1420, HEIGHT=800></CANVAS>
+
+<SCRIPT>
+	var canvas;
+	var CanvasContext;
+
+  var ballX=50;
+	var ballY=50;
+	
+  var ballSpeedX=10;
+	var ballSpeedY=4;
+	
+  var paddle1Y=250;
+	var paddle2Y=250;
+	
+  const paddle_height=100;
+	const paddle_thickness =10;
+	
+	var player1score=0;
+	var player2score=0;
+	const winning_score =3;
+
+	var showingWinScreen =false;
+	
+	function calculateMousePos(evt)
+	{
+		var rect = canvas.getBoundingClientRect();
+		var root = document.documentElement;
+		var mouseX = evt.clientX - rect.left - root.scrollLeft;
+		var mouseY = evt.clientY - rect.top - root.scrollTop;
+		return {
+			x:mouseX,
+			y:mouseY
+		};
+	}
+	
+	function handlemouseclick()
+	{
+		 if(showingWinScreen)
+		{
+			player1score =0;
+			player2score =0;
+			showingWinScreen = false;
+		}
+	}
+	
+	window.onload= function ()        //This function is loads the content as soon as the webpage gets loaded.
+	{
+		console.log("Hello World!");
+		canvas = document.getElementById('game canvas');
+		CanvasContext = canvas.getContext('2d');
+
+		var framespersecond =30;        //This leads to the balls motion. Ball moves in one direction because of this code. 
+		setInterval( function() {       //Framespersecond is a variable and that can be changed in order to increase or decrease the
+ 			moveEverything();             //speed of the ball. 
+			drawEverything();
+		}, 1000/framespersecond);
+	
+		canvas.addEventListener('mousedown',handlemouseclick);    //This is for the final output screen. When clicked the game restarts
+
+		canvas.addEventListener('mousemove',            //This handles the movement of the left paddle. 
+			function(evt){
+				var mousePos= calculateMousePos(evt);
+				paddle1Y = mousePos.y-(paddle_height/2);
+			});
+	}
+	
+	function ballReset()
+	{
+		if(player1score >= winning_score || player2score >= winning_score)
+		{
+			showingWinScreen =true;           //Reseting the ball is equivalent to giving the service to the opponent because you lost the point
+		}
+		ballSpeedX = -ballSpeedX;           //Ball should rebound with the same speed.
+		ballX = canvas.width/2;
+		ballY = canvas.height/2;
+	}
+
+	function computerMovement()       //AI Bot movement controller.
+	{
+		var paddle2YCenter = paddle2Y + paddle_height/2;
+		if(paddle2YCenter <ballY-35)
+		{
+			paddle2Y = paddle2Y +6;       //6 is a variable number. 
+		}
+		else if(paddle2YCenter > ballY+35){       // Addition and subtraction of 35 ensures that the paddle is not moving continuously.
+			paddle2Y = paddle2Y -6;                 // When the ball is in the range of 70 ( +35 from center and -35 from center == 70)
+		}                                         // only then the paddle of the AI Bot will move. 
+	}
+	function moveEverything()
+	{
+		if(showingWinScreen)  
+		{ 
+			return;
+		}
+		computerMovement();
+		ballX= ballX + ballSpeedX;
+		ballY= ballY + ballSpeedY;
+		if (ballX < 0)                    //This avoids the ball going past the screen on the left hand side
+		{	
+			if(ballY > paddle1Y && 
+				 ballY < paddle1Y+paddle_height)
+			{
+				ballSpeedX = -ballSpeedX;
+
+				var deltaY =ballY - (paddle1Y + paddle_height/2);
+				ballSpeedY = deltaY * 0.35;                             //This gives vertical speed to the ball depending on where the ball is hit to the paddle
+			}
+			else
+			{
+				player2score++;
+				ballReset();
+			}
+		}
+		if (ballX> canvas.width)      //this avoids ball going outside the screen on the right side
+		{
+			if(ballY > paddle2Y && 
+				 ballY < paddle2Y+paddle_height)
+			{
+				ballSpeedX = -ballSpeedX;
+				var deltaY =ballY - (paddle2Y + paddle_height/2);
+				ballSpeedY = deltaY * 0.35;
+
+
+			}
+			else
+			{
+				player1score++;         
+				ballReset();
+			}
+			
+		}
+		if (ballY < 0)
+		{
+			ballSpeedY = -ballSpeedY;
+		}
+		if (ballY > canvas.height)
+		{
+			ballSpeedY = -ballSpeedY;
+		}
+	} 
+	
+	function drawNet() {
+		for (var i =0; i<canvas.height; i+=40)
+		{
+			colourRect(canvas.width/2-1,i,2,20,'white');      //Net in between the webpage
+		}
+	}
+
+	function drawEverything()
+	{
+		//Next Line blanks out the screen with black
+		colourRect(0, 0, canvas.width, canvas.height, 'black');
+
+		if(showingWinScreen)
+		{ 
+			CanvasContext.fillStyle = 'white';
+			if(player1score >= winning_score)
+			{
+				CanvasContext.fillText ("Left Player Won", 680, 400);
+			}
+			else if(player2score >= winning_score)
+			{
+				CanvasContext.fillText ("Right Player Won", 680, 400);	
+			}
+
+			CanvasContext.fillText("Click to continue", 680, 450);
+			return;
+		}
+		drawNet();
+		
+		//This is left player paddle
+		colourRect(0, paddle1Y, paddle_thickness, paddle_height, 'white');
+		
+		//This is right player paddle	
+		colourRect(canvas.width-paddle_thickness, paddle2Y, paddle_thickness, paddle_height, 'white');
+
+		//Next line draws the ball
+		colourCircle(ballX, ballY, 10, 10, 'white');	
+
+		CanvasContext.fillText(player1score, 100, 100);
+		CanvasContext.fillText(player2score, canvas.width-100, 100);
+	}
+	function colourCircle(centerX, centerY, radius, drawColour)
+	{
+		CanvasContext.fillStyle= drawColour;
+		CanvasContext.beginPath();
+		CanvasContext.arc(centerX, centerY, radius, 0, Math.PI*2, true);
+		CanvasContext.fill();
+	
+	}
+	function colourRect( leftX, topY, width, height, drawColour)
+	{
+		CanvasContext.fillStyle= drawColour;
+		CanvasContext.fillRect ( leftX, topY, width, height);		
+	}
+</SCRIPT>
+
+</HTML>
