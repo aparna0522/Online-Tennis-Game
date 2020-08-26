@@ -12,25 +12,34 @@
 <SCRIPT>
 	var canvas;
 	var CanvasContext;
+	//ballX and ballY denote the positions of the balls on the canvas
 	var ballX=50;
 	var ballY=50;
+	//ballSpeedX and ballSpeedY is the speed of the ball with respect to the X and Y co-ordinate axes. 
 	var ballSpeedX=10;
 	var ballSpeedY=4;
+	//paddle1Y represents the left side or the player of the game. paddle2Y represents the AI bot.
 	var paddle1Y=250;
 	var paddle2Y=250;
+	//Constant Paddle Parameters
 	const paddle_height=100;
 	const paddle_thickness =10;
-	
+	//Display of Scores
 	var player1score=0;
 	var player2score=0;
+	//Maximum winning score 
 	const winning_score =3;
-
+	//Boolean value which helps in switching the screen and reseting the values of the scores. 
 	var showingWinScreen =false;
 	
+	//Most important: Calculates the position of the mouse using the co-ordinates of the mouse on the canvas. 
 	function calculateMousePos(evt)
 	{
+		//Gets the actual position of the canvas element. In our case it is the entire screen. However, it can vary. And that is why this is important. 
 		var rect = canvas.getBoundingClientRect();
+		//Assigns the <HTML> document element to the root. 
 		var root = document.documentElement;
+		//Calculates the mouse position relative to the CANVAS and NOT the computer screen.
 		var mouseX = evt.clientX - rect.left - root.scrollLeft;
 		var mouseY = evt.clientY - rect.top - root.scrollTop;
 		return {
@@ -39,6 +48,7 @@
 		};
 	}
 	
+	//On a mouse click, the scores get reset and the playing area or the canvas can be seen again.
 	function handlemouseclick()
 	{
 		 if(showingWinScreen)
@@ -49,20 +59,24 @@
 		}
 	}
 	
+	//Waits until all the things on the webpage get loaded, this relaxes the sequence in which the functions appear in the code.
 	window.onload= function ()
 	{
-		console.log("Hello World!");
+		//Canvas is the element. We are drawing 2D elements on the webpage/screen.
 		canvas = document.getElementById('game canvas');
 		CanvasContext = canvas.getContext('2d');
-
+		
+		//Sets the ball in motion, Calls the setInterval function for every 1000/framespersecond 
 		var framespersecond =30;
 		setInterval( function() {
 			moveEverything();
 			drawEverything();
 		}, 1000/framespersecond);
 	
+		//This is for displaying the original canvas again after showing the winner
 		canvas.addEventListener('mousedown',handlemouseclick);
-
+		
+		//Helps in allocation of the mouse on the screen or its movement.
 		canvas.addEventListener('mousemove', 
 			function(evt){
 				var mousePos= calculateMousePos(evt);
@@ -70,17 +84,19 @@
 			});
 	}
 	
+	//If the paddle misses to hit, the ball is reset, direction is opposite.
 	function ballReset()
 	{
 		if(player1score >= winning_score || player2score >= winning_score)
 		{
-			showingWinScreen =true;
+			showingWinScreen = true;
 		}
 		ballSpeedX = -ballSpeedX;
 		ballX = canvas.width/2;
 		ballY = canvas.height/2;
 	}
 
+	//AI bot control
 	function computerMovement()
 	{
 		var paddle2YCenter = paddle2Y + paddle_height/2;
@@ -92,6 +108,8 @@
 			paddle2Y = paddle2Y -6;
 		}
 	}
+	
+	//Controls the movement 
 	function moveEverything()
 	{
 		if(showingWinScreen)
@@ -109,7 +127,7 @@
 				ballSpeedX = -ballSpeedX;
 
 				var deltaY =ballY - (paddle1Y + paddle_height/2);
-				ballSpeedY = deltaY * 0.35;
+				ballSpeedY = deltaY *0.35;
 			}
 			else
 			{
@@ -145,13 +163,15 @@
 		}
 	} 
 	
+	//Draws the central Net(Division)
 	function drawNet() {
 		for (var i =0; i<canvas.height; i+=40)
 		{
 			colourRect(canvas.width/2-1,i,2,20,'white');
 		}
 	}
-
+	
+	//Draws all the graphics on the canvas
 	function drawEverything()
 	{
 		//Next Line blanks out the screen with black
@@ -162,14 +182,16 @@
 			CanvasContext.fillStyle = 'white';
 			if(player1score >= winning_score)
 			{
-				CanvasContext.fillText ("Left Player Won", 680, 400);
+				CanvasContext.font="30px Times";
+				CanvasContext.fillText ("Left Player Won", 630, 400);
 			}
 			else if(player2score >= winning_score)
 			{
-				CanvasContext.fillText ("Right Player Won", 680, 400);	
+				CanvasContext.font="30px Times";
+				CanvasContext.fillText ("Right Player Won", 630, 400);	
 			}
 
-			CanvasContext.fillText("Click to continue", 680, 450);
+			CanvasContext.fillText("Click to continue", 630, 450);
 			return;
 		}
 		drawNet();
@@ -182,10 +204,12 @@
 
 		//Next line draws the ball
 		colourCircle(ballX, ballY, 10, 10, 'white');	
-
+		CanvasContext.font="30px Times";
 		CanvasContext.fillText(player1score, 100, 100);
 		CanvasContext.fillText(player2score, canvas.width-100, 100);
 	}
+	
+	//Helper function to color the circles
 	function colourCircle(centerX, centerY, radius, drawColour)
 	{
 		CanvasContext.fillStyle= drawColour;
@@ -194,6 +218,7 @@
 		CanvasContext.fill();
 	
 	}
+	//Helper function to color the rectangles.
 	function colourRect( leftX, topY, width, height, drawColour)
 	{
 		CanvasContext.fillStyle= drawColour;
