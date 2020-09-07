@@ -4,4 +4,4 @@ Tennis Game is an arcade game which can be played using paddles. <br>This projec
 <br>To run this project, one can directly double click on the html file which will launch the game in the browser. </br>
 
 <br><b> Project Reference:</b> </br>
-Udemy Course by Chris DeLeon : https://www.udemy.com/course/code-your-first-game/learn/lecture/3603404?start=0#overview
+Udemy Course by Chris DeLeon : https://www.udemy.com/course/code-your-first-game/
